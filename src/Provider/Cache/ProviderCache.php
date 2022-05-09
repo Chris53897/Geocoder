@@ -23,33 +23,8 @@ use Psr\SimpleCache\CacheInterface;
  */
 class ProviderCache implements Provider
 {
-    /**
-     * @var Provider
-     */
-    protected $realProvider;
-
-    /**
-     * @var CacheInterface
-     */
-    protected $cache;
-
-    /**
-     * How long a result is going to be cached.
-     *
-     * @var int|null
-     */
-    protected $lifetime;
-
-    /**
-     * @param Provider       $realProvider
-     * @param CacheInterface $cache
-     * @param int            $lifetime
-     */
-    final public function __construct(Provider $realProvider, CacheInterface $cache, int $lifetime = null)
+    final public function __construct(protected Provider $realProvider, protected CacheInterface $cache, protected ?int $lifetime = null)
     {
-        $this->realProvider = $realProvider;
-        $this->cache = $cache;
-        $this->lifetime = $lifetime;
     }
 
     /**
@@ -70,6 +45,7 @@ class ProviderCache implements Provider
 
     /**
      * {@inheritdoc}
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     final public function reverseQuery(ReverseQuery $query): Collection
     {
@@ -97,12 +73,7 @@ class ProviderCache implements Provider
         return call_user_func_array([$this->realProvider, $method], $args);
     }
 
-    /**
-     * @param GeocodeQuery|ReverseQuery $query
-     *
-     * @return string
-     */
-    protected function getCacheKey($query): string
+    protected function getCacheKey(ReverseQuery|GeocodeQuery $query): string
     {
         // Include the major version number of the geocoder to avoid issues unserializing.
         return 'v4'.sha1((string) $query);

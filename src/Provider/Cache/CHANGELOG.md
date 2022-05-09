@@ -2,6 +2,26 @@
 
 The change log describes what is "Added", "Removed", "Changed" or "Fixed" between each release.
 
+## 5.0
+
+### Added
+
+- Add typehints according to php 8 language level
+
+### Removed
+
+- Drop support for PHP 7.x
+
+## 4.3.0
+
+### Added
+
+- Add support for PHP 8.0
+
+### Removed
+
+- Drop support for PHP 7.2
+
 ## 4.3.0
 
 ### Added

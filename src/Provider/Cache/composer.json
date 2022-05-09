@@ -3,7 +3,7 @@
     "type": "library",
     "description": "Cache the result of a provider",
     "keywords": [],
-    "homepage": "http://geocoder-php.org/Geocoder/",
+    "homepage": "https://geocoder-php.org/Geocoder/",
     "license": "MIT",
     "authors": [
         {
@@ -12,9 +12,9 @@
         }
     ],
     "require": {
-        "php": "^7.3 || ^8.0",
-        "psr/simple-cache": "^1.0",
-        "willdurand/geocoder": "^4.0.0"
+        "php": "^8.0",
+        "psr/simple-cache": "^3.0",
+        "willdurand/geocoder": "^4.4"
     },
     "provide": {
         "geocoder-php/provider-implementation": "1.0"

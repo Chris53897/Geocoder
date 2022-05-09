@@ -18,6 +18,7 @@ use Geocoder\Provider\Cache\ProviderCache;
 use Geocoder\Provider\Provider;
 use Geocoder\Query\GeocodeQuery;
 use Geocoder\Query\ReverseQuery;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheInterface;
 
@@ -26,15 +27,9 @@ use Psr\SimpleCache\CacheInterface;
  */
 class ProviderCacheTest extends TestCase
 {
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|Provider
-     */
-    private $providerMock;
+    private Provider|MockObject $providerMock;
 
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|CacheInterface
-     */
-    private $cacheMock;
+    private MockObject|CacheInterface $cacheMock;
 
     protected function setUp(): void
     {
@@ -42,7 +37,6 @@ class ProviderCacheTest extends TestCase
 
         $this->cacheMock = $this->getMockBuilder(CacheInterface::class)
             ->setMethods(['get', 'set', 'delete', 'clear', 'setMultiple', 'getMultiple', 'deleteMultiple', 'has'])
-
             ->getMock();
 
         $this->providerMock = $this->getMockBuilder(Provider::class)
@@ -83,7 +77,7 @@ class ProviderCacheTest extends TestCase
         $this->cacheMock->expects($this->once())
             ->method('set')
             ->with($this->anything(), $result, $ttl)
-            ->willReturn(null);
+            ->willReturn(true);
 
         $this->providerMock->expects($this->once())
             ->method('geocodeQuery')
@@ -127,7 +121,7 @@ class ProviderCacheTest extends TestCase
         $this->cacheMock->expects($this->once())
             ->method('set')
             ->with($this->anything(), $result, $ttl)
-            ->willReturn(null);
+            ->willReturn(true);
 
         $this->providerMock->expects($this->once())
             ->method('reverseQuery')
