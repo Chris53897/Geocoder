@@ -70,10 +70,17 @@ final class Photon extends AbstractHttpProvider implements Provider
                 'q' => $address,
                 'limit' => $query->getLimit(),
                 'lang' => $query->getLocale(),
+                'lat' => $query->getData('lat'),
+                'lon' => $query->getData('lon'),
             ]);
+        $url .= $this->buildLayerFilterQuery($query->getData('layer'));
         $osmTagFilters = $this->buildOsmTagFilterQuery($query->getData('osm_tag'));
         if (!empty($osmTagFilters)) {
             $url .= $osmTagFilters;
+        }
+        $bboxQueryString = $this->buildBboxFilterQuery($query);
+        if (!is_null($bboxQueryString)) {
+            $url .= $bboxQueryString;
         }
 
         $json = $this->executeQuery($url);
@@ -102,9 +109,11 @@ final class Photon extends AbstractHttpProvider implements Provider
             .http_build_query([
                 'lat' => $latitude,
                 'lon' => $longitude,
+                'radius' => $query->getData('radius'),
                 'limit' => $query->getLimit(),
                 'lang' => $query->getLocale(),
             ]);
+        $url .= $this->buildLayerFilterQuery($query->getData('layer'));
         $osmTagFilters = $this->buildOsmTagFilterQuery($query->getData('osm_tag'));
         if (!empty($osmTagFilters)) {
             $url .= $osmTagFilters;
@@ -157,7 +166,8 @@ final class Photon extends AbstractHttpProvider implements Provider
             ->withName($properties->name ?? null)
             ->withState($properties->state ?? null)
             ->withCounty($properties->county ?? null)
-            ->withDistrict($properties->district ?? null);
+            ->withDistrict($properties->district ?? null)
+            ->withType($properties->type ?? null);
 
         return $address;
     }
@@ -165,6 +175,25 @@ final class Photon extends AbstractHttpProvider implements Provider
     public function getName(): string
     {
         return 'photon';
+    }
+
+    /**
+     * @param string|string[]|null $layers
+     */
+    private function buildLayerFilterQuery(mixed $layers): string
+    {
+        $query = '';
+        if (null === $layers) {
+            return $query;
+        }
+        if (is_string($layers)) {
+            return '&layer='.urlencode($layers);
+        }
+        foreach ($layers as $layer) {
+            $query .= '&layer='.urlencode($layer);
+        }
+
+        return $query;
     }
 
     /**
@@ -184,6 +213,20 @@ final class Photon extends AbstractHttpProvider implements Provider
         }
 
         return $query;
+    }
+
+    private function buildBboxFilterQuery(GeocodeQuery $query): ?string
+    {
+        if (null === $query->getBounds()) {
+            return null;
+        }
+
+        return '&bbox='.sprintf('%f,%f,%f,%f',
+            $query->getBounds()->getWest(),
+            $query->getBounds()->getSouth(),
+            $query->getBounds()->getEast(),
+            $query->getBounds()->getNorth()
+        );
     }
 
     private function executeQuery(string $url): \stdClass
